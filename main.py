@@ -9,30 +9,45 @@ window.resizable(False, False)
 
 
 #funkce
-
-#napojení na databázi
-connection = psycopg2.connect(
-          dbname = 'evidence',
-          user = 'postgres',
-          password = 'admin',
-          host ='localhost',
-          port = '5432'
-)
-cur = connection.cursor()
-cur.execute('''CREATE TABLE evidenceinfo(
-              ID SERIAL,
-              SPZ VARCHAR(7),
-              BRANDCAR TEXT,
-              STK DATE,
-              OWN TEXT
-)''')
-connection.commit()
-connection.close()
-print('Tabulka byla vytvořena.')
-
-#def insert_dat():
+def create():
+#napojení na databázi a vytvoření tabulky
+  connection = psycopg2.connect(
+            dbname = 'evidence',
+            user = 'postgres',
+            password = 'admin',
+            host ='localhost',
+            port = '5432'
+  )
+  cur = connection.cursor()
+  cur.execute('''CREATE TABLE evidenceinfo(
+                ID SERIAL,
+                SPZ VARCHAR(7),
+                BRANDCAR TEXT,
+                STK DATE,
+                OWN TEXT
+  )''')
+  connection.commit()
+  connection.close()
 
 
+
+
+def insert_data(car_spz, car_brand, car_stk, car_own):
+  connection = psycopg2.connect(
+            dbname = 'evidence',
+            user = 'postgres',
+            password = 'admin',
+            host ='localhost',
+            port = '5432'
+  )
+  cur = connection.cursor()
+  query ='''INSERT INTO evidenceinfo(spz, brandcar, stk, own) 
+              VALUES(%s, %s, %s, %s)'''
+  cur.execute(query, (car_spz, car_brand, car_stk, car_own))            
+  connection.commit()
+  connection.close()
+
+insert_data('5AY2470', 'Fiat Tipo', '21.5.2025', 'Jan Novak')
 
 
 
