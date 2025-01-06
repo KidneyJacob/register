@@ -1,5 +1,6 @@
 from tkinter import *
 import psycopg2
+from tkinter import ttk
 
 window = Tk()
 window.geometry('500x400')
@@ -9,13 +10,13 @@ window.resizable(False, False)
 
 
 #funkce
-def create():
 #napojení na databázi a vytvoření tabulky
+def create():
   connection = psycopg2.connect(
             dbname = 'evidence',
             user = 'postgres',
             password = 'admin',
-            host ='localhost',
+            host = 'localhost',
             port = '5432'
   )
   cur = connection.cursor()
@@ -31,13 +32,13 @@ def create():
 
 
 
-
+#funkce na vložení dat do databáze
 def insert_data(car_spz, car_brand, car_stk, car_own):
   connection = psycopg2.connect(
             dbname = 'evidence',
             user = 'postgres',
             password = 'admin',
-            host ='localhost',
+            host = 'localhost',
             port = '5432'
   )
   cur = connection.cursor()
@@ -46,12 +47,39 @@ def insert_data(car_spz, car_brand, car_stk, car_own):
   cur.execute(query, (car_spz, car_brand, car_stk, car_own))            
   connection.commit()
   connection.close()
+  
+  #hledání
+def search(spz, own):
 
-insert_data('5AY2470', 'Fiat Tipo', '21.5.2025', 'Jan Novak')
+   connection = psycopg2.connect(
+            dbname = 'evidence',
+            user = 'postgres',
+            password = 'admin',
+            host = 'localhost',
+            port = '5432'
+  )
 
+   cur = connection.cursor()
+   if spz and own:  
+    query ='''SELECT * FROM evidenceinfo WHERE spz = %s AND own = %s'''
+    cur.execute(query, (spz, own)) 
+   elif spz:
+    query ='''SELECT * FROM evidenceinfo WHERE spz = %s'''
+    cur.execute(query,(spz,))
+   elif own:
+    query ='''SELECT * FROM evidenceinfo WHERE  own = %s'''
+    cur.execute(query, (own,))
+   else:
+    print('Uveďte spz nebo jméno majitele.')
+    connection.close()
+    return
 
-
-
+   rows = cur.fetchall()
+   for row in rows:
+     print(row)
+   
+   connection.close()
+              
 
 
 #popisek sekce
@@ -83,19 +111,25 @@ owner_car_entry = Entry()
 owner_car_entry.grid(row=4, column=1)
 
 #tlačítko vložit údaje
-insert_button = Button(text='Vložit údaje')
+insert_button = Button(text='Vložit údaje', command=lambda:insert_data(spz_entry.get(), brand_car_entry.get(), stk_entry.get(), owner_car_entry.get()))
 insert_button.grid(row=2, column=2)
 
 #popisek sekce
 search_label = Label(text='Najít údaje o vozidle a majiteli.')
 search_label.grid(row=5, column=1)
 #spz vozidla
-search_spz_label = Label(text='Zadej SPZ vozidla: ')
+search_spz_label = Label(text='Hledat podle SPZ: ')
 search_spz_label.grid(row=6, column=0)
 search_spz_entry = Entry()
 search_spz_entry.grid(row=6, column=1)
+search_info_label = Label(text='Nebo')
+search_info_label.grid(row=7, column=1)
+search_own_label = Label(text='Najít podle majitele')
+search_own_label.grid(row=8, column=0)
+search_own_entry = Entry()
+search_own_entry.grid(row=8, column=1)
 #tlačítko hledání
-search_button = Button(text='Hledat údaje')
-search_button.grid(row=6, column=2)
+search_button = Button(window, text='Hledat údaje', command=lambda:search(search_spz_entry.get(), search_own_entry.get()))
+search_button.grid(row=7, column=2)
 
 window.mainloop()
