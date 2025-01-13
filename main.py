@@ -74,12 +74,17 @@ def search(spz, own):
     connection.close()
     return
 
-   rows = cur.fetchall()
-   for row in rows:
-     print(row)
-   
+   row = cur.fetchall()
+   #for r in row:
+    # print(row)
+   display_search(row)
+   connection.commit()
    connection.close()
               
+def display_search(data):
+  listbox = Listbox(window, width=45, height=1)
+  listbox.grid(row=10, column=1)
+  listbox.insert(0, data)
 
 
 #popisek sekce
